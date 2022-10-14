@@ -11,6 +11,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 
@@ -36,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private CustomRecogniser customRecogniser = new CustomRecogniser();
     private SpeechRecognizer speechRecognizer;
     private Context context;
+    private TextToSpeech textToSpeech;
 
+    private boolean textToSpeechReady = false;
     private boolean recordingState = false;
 
     @Override
@@ -46,6 +49,12 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext(); //Get context
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context); //Get speech recogniser from context
         speechRecognizer.setRecognitionListener(customRecogniser); //Setup custom callback to handle recognised text
+        textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() { //Init textToSpeech and signal when it's ready
+            @Override
+            public void onInit(int i) {
+                textToSpeechReady = true;
+            }
+        });
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -56,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         customRecogniser.textView = binding.textviewFirst;
         customRecogniser.rootView = getWindow().getDecorView();
         customRecogniser.mainActivity = this;
+        customRecogniser.textToSpeech = textToSpeech;
 
         binding.buttonFirst.setText((CharSequence) "Record Toggle");
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
@@ -89,21 +99,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toggleRecordingState(View view){
-        if(!recordingState) {
-            if(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED){
-                ActivityCompat.requestPermissions (MainActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 100);
+        if(textToSpeechReady){
+            if(!recordingState) {
+                if(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED){
+                    ActivityCompat.requestPermissions (MainActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 100);
+                }
+                else {
+                    Snackbar.make(view, "Started Recording... Press Again To Stop", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    speechRecognizer.startListening(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH));
+                    recordingState = true;
+                }
             }
-            else {
-                Snackbar.make(view, "Started Recording... Press Again To Stop", Snackbar.LENGTH_LONG)
+            else{
+                recordingState = false;
+                speechRecognizer.stopListening();
+                Snackbar.make(view, "Recording Finished", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                speechRecognizer.startListening(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH));
-                recordingState = true;
             }
         }
         else{
-            recordingState = false;
-            speechRecognizer.stopListening();
-            Snackbar.make(view, "Recording Finished", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, "Text To Speech still initialising...", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
         }
     }
