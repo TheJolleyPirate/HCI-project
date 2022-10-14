@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class CustomRecogniser implements RecognitionListener {
 
-    public ArrayList<String> lastResults = new ArrayList<String>();
+    public String response = "";
     public TextView textView = null;
     public View rootView = null;
     public MainActivity mainActivity = null;
@@ -51,12 +51,14 @@ public class CustomRecogniser implements RecognitionListener {
 
     @Override
     public void onResults(Bundle bundle) {
-        lastResults = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        String outputText = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0);
+        response = parseFeedback(bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0));
+        outputText += "\n"+response;
         if(textView != null){
-            textView.setText(lastResults.get(0));
+            textView.setText(outputText);
         }
         if(textToSpeech != null){
-            textToSpeech.speak(lastResults.get(0), TextToSpeech.QUEUE_ADD, null);
+            textToSpeech.speak(response, TextToSpeech.QUEUE_ADD, null);
         }
     }
 
@@ -68,5 +70,21 @@ public class CustomRecogniser implements RecognitionListener {
     @Override
     public void onEvent(int i, Bundle bundle) {
 
+    }
+
+    private String parseFeedback(String transcribedSpeech){
+        if(transcribedSpeech.contains("control")){
+            return "Logging feedback for controls.";
+        }
+        if(transcribedSpeech.contains("sound") || transcribedSpeech.contains("audio")){
+            return "Logging feedback for audio.";
+        }
+        if(transcribedSpeech.contains("graphic") || transcribedSpeech.contains("texture") || transcribedSpeech.contains("model")){
+            return "Logging feedback for graphics.";
+        }
+        if(transcribedSpeech.contains("close") && transcribedSpeech.contains("pod") && transcribedSpeech.contains("bay") && transcribedSpeech.contains("doors")){
+            return "I'm sorry Dave, I'm afraid I can't do that.";
+        }
+        return "I'm not sure I understood that.";
     }
 }
