@@ -7,6 +7,8 @@ import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.core.util.Pair;
+
 import java.util.ArrayList;
 
 public class CustomRecogniser implements RecognitionListener {
@@ -16,6 +18,7 @@ public class CustomRecogniser implements RecognitionListener {
     public View rootView = null;
     public MainActivity mainActivity = null;
     public TextToSpeech textToSpeech = null;
+    public boolean clarificationInput = false;
 
     @Override
     public void onReadyForSpeech(Bundle bundle) {
@@ -52,7 +55,8 @@ public class CustomRecogniser implements RecognitionListener {
     @Override
     public void onResults(Bundle bundle) {
         String outputText = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0);
-        response = parseFeedback(bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0));
+        Pair<String, Boolean> ret = parseFeedback(bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0));
+        response = ret.first;
         outputText += "\n"+response;
         if(textView != null){
             textView.setText(outputText);
@@ -60,6 +64,7 @@ public class CustomRecogniser implements RecognitionListener {
         if(textToSpeech != null){
             textToSpeech.speak(response, TextToSpeech.QUEUE_ADD, null);
         }
+        clarificationInput = ret.second;
     }
 
     @Override
@@ -72,19 +77,28 @@ public class CustomRecogniser implements RecognitionListener {
 
     }
 
-    private String parseFeedback(String transcribedSpeech){
-        if(transcribedSpeech.contains("control")){
-            return "Logging feedback for controls.";
+    //Returns the response string along with whether it needs clarification. If it's not clear, wait for clarification.
+    private Pair<String, Boolean> parseFeedback(String transcribedSpeech){
+        if(!clarificationInput) {
+            if (transcribedSpeech.contains("control")) {
+                return new Pair<>("Logging feedback for controls.", false);
+            }
+            if (transcribedSpeech.contains("sound") || transcribedSpeech.contains("audio")) {
+                return new Pair<>("Logging feedback for audio.", false);
+            }
+            if (transcribedSpeech.contains("graphic") || transcribedSpeech.contains("texture") || transcribedSpeech.contains("model")) {
+                return new Pair<>("Logging feedback for graphics.", false);
+            }
+            if (transcribedSpeech.contains("game suck")) {
+                return new Pair<>("Skill issue.", false);
+            }
+            if (transcribedSpeech.contains("close the pod bay door")) {
+                return new Pair<>("I'm sorry Dave, I'm afraid I can't do that.", false);
+            }
+            return new Pair<>("I'm not sure how to categorise that. Please give me a name for that category.", true);
         }
-        if(transcribedSpeech.contains("sound") || transcribedSpeech.contains("audio")){
-            return "Logging feedback for audio.";
+        else{
+            return new Pair<>("Ok. I'm adding "+transcribedSpeech+" as a new category", false);
         }
-        if(transcribedSpeech.contains("graphic") || transcribedSpeech.contains("texture") || transcribedSpeech.contains("model")){
-            return "Logging feedback for graphics.";
-        }
-        if(transcribedSpeech.contains("close") && transcribedSpeech.contains("pod") && transcribedSpeech.contains("bay") && transcribedSpeech.contains("doors")){
-            return "I'm sorry Dave, I'm afraid I can't do that.";
-        }
-        return "I'm not sure I understood that.";
     }
 }
