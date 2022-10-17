@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.core.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class CustomRecogniser implements RecognitionListener {
 
@@ -19,6 +20,7 @@ public class CustomRecogniser implements RecognitionListener {
     public MainActivity mainActivity = null;
     public TextToSpeech textToSpeech = null;
     public boolean clarificationInput = false;
+    public CustomUtteranceListener textToSpeechListener = new CustomUtteranceListener();
 
     @Override
     public void onReadyForSpeech(Bundle bundle) {
@@ -54,17 +56,23 @@ public class CustomRecogniser implements RecognitionListener {
 
     @Override
     public void onResults(Bundle bundle) {
-        String outputText = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0);
-        Pair<String, Boolean> ret = parseFeedback(bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION).get(0));
-        response = ret.first;
-        outputText += "\n"+response;
-        if(textView != null){
-            textView.setText(outputText);
+        ArrayList<String> recogResults = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        if(recogResults.size() != 0){
+            String outputText = recogResults.get(0);
+            Pair<String, Boolean> ret = parseFeedback(recogResults.get(0));
+            response = ret.first;
+            clarificationInput = ret.second;
+            textToSpeechListener.startRecordingWhenDone = clarificationInput;
+            outputText += "\n"+response;
+            if(textView != null){
+                textView.setText(outputText);
+            }
+            if(textToSpeech != null){
+                HashMap<String, String> params = new HashMap<>();
+                params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, response);
+                textToSpeech.speak(response, TextToSpeech.QUEUE_ADD, params);
+            }
         }
-        if(textToSpeech != null){
-            textToSpeech.speak(response, TextToSpeech.QUEUE_ADD, null);
-        }
-        clarificationInput = ret.second;
     }
 
     @Override
@@ -80,6 +88,12 @@ public class CustomRecogniser implements RecognitionListener {
     //Returns the response string along with whether it needs clarification. If it's not clear, wait for clarification.
     private Pair<String, Boolean> parseFeedback(String transcribedSpeech){
         if(!clarificationInput) {
+            if(transcribedSpeech.contains("introduce yourself")){
+                return new Pair<>("Hi! I'm Dakk, I'm designed to receive and log your feedback just by listening to you speak.", false);
+            }
+            if(transcribedSpeech.contains("environment")){
+                return new Pair<>("What specifically do you like about the environment?", true);
+            }
             if (transcribedSpeech.contains("control")) {
                 return new Pair<>("Logging feedback for controls.", false);
             }
@@ -88,6 +102,9 @@ public class CustomRecogniser implements RecognitionListener {
             }
             if (transcribedSpeech.contains("graphic") || transcribedSpeech.contains("texture") || transcribedSpeech.contains("model")) {
                 return new Pair<>("Logging feedback for graphics.", false);
+            }
+            if(transcribedSpeech.contains("ui") || transcribedSpeech.contains("menu") || transcribedSpeech.contains("user interface")){
+                return new Pair<>("Logging feedback for user interface", false);
             }
             if (transcribedSpeech.contains("game suck")) {
                 return new Pair<>("Skill issue.", false);
@@ -98,7 +115,7 @@ public class CustomRecogniser implements RecognitionListener {
             return new Pair<>("I'm not sure how to categorise that. Please give me a name for that category.", true);
         }
         else{
-            return new Pair<>("Ok. I'm adding "+transcribedSpeech+" as a new category", false);
+            return new Pair<>("Ok. I'm adding "+transcribedSpeech+" as a new category.", false);
         }
     }
 }

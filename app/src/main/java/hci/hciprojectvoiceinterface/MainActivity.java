@@ -46,16 +46,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        context = getApplicationContext(); //Get context
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context); //Get speech recogniser from context
-        speechRecognizer.setRecognitionListener(customRecogniser); //Setup custom callback to handle recognised text
-        textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() { //Init textToSpeech and signal when it's ready
-            @Override
-            public void onInit(int i) {
-                textToSpeechReady = true;
-            }
-        });
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -65,6 +55,22 @@ public class MainActivity extends AppCompatActivity {
         customRecogniser.textView = binding.textviewFirst;
         customRecogniser.rootView = getWindow().getDecorView();
         customRecogniser.mainActivity = this;
+        customRecogniser.textToSpeechListener.rootView = getWindow().getDecorView();
+        customRecogniser.textToSpeechListener.mainActivity = this;
+        customRecogniser.textToSpeechListener.textView = binding.textviewFirst;
+
+
+        context = getApplicationContext(); //Get context
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context); //Get speech recogniser from context
+        speechRecognizer.setRecognitionListener(customRecogniser); //Setup custom callback to handle recognised text
+        textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() { //Init textToSpeech and signal when it's ready
+            @Override
+            public void onInit(int i) {
+                textToSpeech.setOnUtteranceProgressListener(customRecogniser.textToSpeechListener);
+                textToSpeechReady = true;
+            }
+        });
+
         customRecogniser.textToSpeech = textToSpeech;
 
         binding.buttonFirst.setText((CharSequence) "Record Toggle");
