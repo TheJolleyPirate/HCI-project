@@ -29,6 +29,12 @@
         </activity>
     </application>
 
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
+
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
 </manifest>
