@@ -1,5 +1,6 @@
 package hci.hciprojectvoiceinterface;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.SpeechRecognizer;
@@ -70,7 +71,12 @@ public class CustomRecogniser implements RecognitionListener {
             if(textToSpeech != null){
                 HashMap<String, String> params = new HashMap<>();
                 params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, response);
-                textToSpeech.speak(response, TextToSpeech.QUEUE_ADD, params);
+                if(Build.VERSION.SDK_INT < 21){
+                    textToSpeech.speak(response, TextToSpeech.QUEUE_ADD, params);
+                }
+                else{
+                    textToSpeech.speak(response, TextToSpeech.QUEUE_ADD, null, response);
+                }
             }
         }
     }
@@ -90,7 +96,7 @@ public class CustomRecogniser implements RecognitionListener {
         switch(clarificationInput) {
             case NONE:
                 if(transcribedSpeech.contains("introduce yourself")){
-                    return new Pair<>("Hi! I'm Dakk, I'm designed to receive and log your feedback just by listening to you speak.", ClarificationType.NONE);
+                    return new Pair<>("Hi! I'm Replay, I'm designed to receive and log your feedback just by listening to you speak.", ClarificationType.NONE);
                 }
                 if(transcribedSpeech.contains("environment")){
                     return new Pair<>("What specifically do you like about the environment?", ClarificationType.ENVIRONMENT);
