@@ -111,16 +111,16 @@ public class CustomRecogniser implements RecognitionListener {
                     return new Pair<>("The controls feel clunky? Tell me more about that.", ClarificationType.CONTROLS_CLUNKY);
                 }
                 if (transcribedSpeech.contains("control")) {
-                    return new Pair<>("Logging feedback for controls.", ClarificationType.NONE);
+                    return new Pair<>("Logging feedback for controls. Thank You", ClarificationType.NONE);
                 }
                 if (transcribedSpeech.contains("sound") || transcribedSpeech.contains("audio")) {
-                    return new Pair<>("Logging feedback for audio.", ClarificationType.NONE);
+                    return new Pair<>("Logging feedback for audio. Thank You", ClarificationType.NONE);
                 }
                 if (transcribedSpeech.contains("graphic") || transcribedSpeech.contains("texture") || transcribedSpeech.contains("model")) {
-                    return new Pair<>("Logging feedback for graphics.", ClarificationType.NONE);
+                    return new Pair<>("Logging feedback for graphics. Thank You", ClarificationType.NONE);
                 }
                 if(transcribedSpeech.contains("ui") || transcribedSpeech.contains("menu") || transcribedSpeech.contains("user interface")){
-                    return new Pair<>("Logging feedback for user interface", ClarificationType.NONE);
+                    return new Pair<>("Logging feedback for user interface. Thank You", ClarificationType.NONE);
                 }
                 if (transcribedSpeech.contains("game suck")) {
                     return new Pair<>("Skill issue.", ClarificationType.NONE);
