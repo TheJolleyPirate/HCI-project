@@ -8,9 +8,12 @@
 
     <Button
         android:id="@+id/button_first"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="284dp"
+        android:layout_height="284dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
         android:text="@string/next"
+        app:cornerRadius="10000dp"
         app:layout_anchor="@+id/appBarLayout"
         app:layout_anchorGravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
