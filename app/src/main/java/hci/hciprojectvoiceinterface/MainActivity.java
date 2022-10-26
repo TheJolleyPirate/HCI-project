@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -17,11 +19,7 @@ import android.view.View;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.PackageManagerCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
+import androidx.core.view.ViewCompat;
 
 import hci.hciprojectvoiceinterface.databinding.ActivityMainBinding;
 
@@ -115,10 +113,12 @@ public class MainActivity extends AppCompatActivity {
                             .setAction("Action", null).show();
                     speechRecognizer.startListening(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH));
                     recordingState = true;
+                    ViewCompat.setBackgroundTintList(binding.buttonFirst, ColorStateList.valueOf(Color.parseColor("#B00020")));
                 }
             }
             else{
                 recordingState = false;
+                ViewCompat.setBackgroundTintList(binding.buttonFirst, ColorStateList.valueOf(Color.parseColor("#6200EE")));
                 speechRecognizer.stopListening();
                 Snackbar.make(view, "Recording Finished", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();

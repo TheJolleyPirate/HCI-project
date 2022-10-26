@@ -96,7 +96,7 @@ public class CustomRecogniser implements RecognitionListener {
         switch(clarificationInput) {
             case NONE:
                 if(transcribedSpeech.contains("introduce yourself")){
-                    return new Pair<>("Hi! I'm Replay, I'm designed to receive and log your feedback just by listening to you speak.", ClarificationType.NONE);
+                    return new Pair<>("Hi, I’m Replay! I help game designers gather feedback from their players. I can be programmed to ask questions, provide information, or respond to actions within the game. I can be used for play testing video games or board games. Let’s play!", ClarificationType.NONE);
                 }
                 if(transcribedSpeech.contains("environment")){
                     return new Pair<>("What specifically do you like about the environment?", ClarificationType.ENVIRONMENT);
@@ -128,7 +128,8 @@ public class CustomRecogniser implements RecognitionListener {
                 if (transcribedSpeech.contains("close the pod bay door")) {
                     return new Pair<>("I'm sorry Dave, I'm afraid I can't do that.", ClarificationType.NONE);
                 }
-                return new Pair<>("I'm not sure how to categorise that. Please give me a name for that category.", ClarificationType.NEW_CATEGORY);
+                //return new Pair<>("I'm not sure how to categorise that. Please give me a name for that category.", ClarificationType.NEW_CATEGORY);
+                return new Pair<>("", ClarificationType.NONE);
 
             case NEW_CATEGORY:
                 return new Pair<>("Ok. I'm adding "+transcribedSpeech+" as a new category.", ClarificationType.NONE);
